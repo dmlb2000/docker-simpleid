@@ -18,56 +18,25 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-FROM fedora:21
-MAINTAINER Michael Knapp <michael.knapp@bmw-carit.de>
+FROM php:5.6-apache
+MAINTAINER David Brown <dmlb2000@gmail.com>
 
-# set timezone
-RUN rm /etc/localtime
-RUN ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-
-# install needed packages
-RUN yum upgrade -y && \
-	yum install -y \
-		curl \
-		https \
-		mod_ssl \
-		net-tools \
-		openssl \
-		php \
-		php-bcmath \
-		php-pdo \
-		php-xml \
-		tar \
-		wget && \
-	yum clean all
-
-# configure php
-RUN sed -i -e 's/;date.timezone.*/date.timezone = Europe\/Berlin/g' /etc/php.ini && \
-	sed -i -e 's/display_errors.*/display_errors = On/g' /etc/php.ini
-
-# configure apache server
-COPY httpd.conf /etc/httpd/conf/httpd.conf
+RUN apt-get update && \
+    apt-get -y install libgmp-dev && \
+    ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \
+    for lib in /usr/lib/x86_64-linux-gnu/libgmp* ; do \
+      ln -s $lib /usr/lib/$(basename $lib) ; \
+    done && \
+    docker-php-ext-install mbstring && \
+    docker-php-ext-install bcmath && \
+    docker-php-ext-install gmp
 
 # install simpleid server
-RUN mkdir -p /data
-RUN cd /data && \
-	wget http://downloads.sourceforge.net/simpleid/simpleid-0.9.1.tar.gz && \
-	tar xzf simpleid-0.9.1.tar.gz && \
-	rm simpleid-0.9.1.tar.gz
-RUN cd /var/www/html/ && ln -s /data/simpleid/www simpleid
+RUN mkdir -p /data/logs
+RUN chown www-data.www-data /data/logs
+RUN curl -L http://downloads.sourceforge.net/simpleid/simpleid-1.0.0.tar.gz | tar -C /data -xzf - && rm -rf /var/www/html/ && ln -s /data/simpleid/www /var/www/html
 
 # configure simpleid server
-COPY config.php /data/simpleid/www/config.php.dist
+COPY config.php /data/simpleid/www/config.php
 VOLUME /data/simpleid/identities
-RUN chmod o+w /data/simpleid
 
-# copy default identities
-COPY identities/ /data/simpleid/identities
-
-# add start script
-COPY start.sh /data/start.sh
-
-# expose https port
-EXPOSE 443
-
-ENTRYPOINT ["/data/start.sh"]
