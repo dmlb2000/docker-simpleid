@@ -23,6 +23,8 @@ MAINTAINER David Brown <dmlb2000@gmail.com>
 
 RUN apt-get update && \
     apt-get -y install libgmp-dev && \
+    a2enmod ssl && \
+    a2ensite default-ssl && \
     ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \
     for lib in /usr/lib/x86_64-linux-gnu/libgmp* ; do \
       ln -s $lib /usr/lib/$(basename $lib) ; \
@@ -35,6 +37,8 @@ RUN apt-get update && \
 RUN mkdir -p /data/logs
 RUN chown www-data.www-data /data/logs
 RUN curl -L http://downloads.sourceforge.net/simpleid/simpleid-1.0.0.tar.gz | tar -C /data -xzf - && rm -rf /var/www/html/ && ln -s /data/simpleid/www /var/www/html
+
+EXPOSE 443
 
 # configure simpleid server
 COPY config.php /data/simpleid/www/config.php
