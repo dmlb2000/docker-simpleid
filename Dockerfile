@@ -23,6 +23,7 @@ MAINTAINER David Brown <dmlb2000@gmail.com>
 
 RUN apt-get update && \
     apt-get -y install ssl-cert libgmp-dev && \
+    apt-get clean all && \
     a2enmod ssl && \
     a2ensite default-ssl && \
     sed -i 's|ErrorLog .*|ErrorLog /proc/self/fd/2|;s|CustomLog .*|CustomLog /proc/self/fd/1 combined|' /etc/apache2/sites-available/default-ssl.conf && \
