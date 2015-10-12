@@ -22,7 +22,7 @@ FROM php:5.6-apache
 MAINTAINER David Brown <dmlb2000@gmail.com>
 
 RUN apt-get update && \
-    apt-get -y install libgmp-dev && \
+    apt-get -y install ssl-cert libgmp-dev && \
     a2enmod ssl && \
     a2ensite default-ssl && \
     make-ssl-cert generate-default-snakeoil --force-overwrite && \
