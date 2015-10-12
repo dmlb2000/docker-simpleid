@@ -25,6 +25,7 @@ RUN apt-get update && \
     apt-get -y install ssl-cert libgmp-dev && \
     a2enmod ssl && \
     a2ensite default-ssl && \
+    sed -i 's|ErrorLog .*|ErrorLog /proc/self/fd/2|;s|CustomLog .*|CustomLog /proc/self/fd/1 combined|' /etc/apache2/sites-available/default-ssl.conf
     make-ssl-cert generate-default-snakeoil --force-overwrite && \
     ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \
     for lib in /usr/lib/x86_64-linux-gnu/libgmp* ; do \
