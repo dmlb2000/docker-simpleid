@@ -38,8 +38,8 @@ RUN apt-get update && \
 
 # install simpleid server
 RUN mkdir -p /data/logs
-RUN chown www-data.www-data /data/logs
 RUN curl -L http://downloads.sourceforge.net/simpleid/simpleid-1.0.0.tar.gz | tar -C /data -xzf - && rm -rf /var/www/html/ && ln -s /data/simpleid/www /var/www/html
+RUN chown www-data.www-data /data/logs /data/simpleid/store /data/simpleid/cache
 
 EXPOSE 443
 
